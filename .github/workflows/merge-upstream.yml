@@ -1,54 +1,43 @@
-＃
-＃這是免費軟件，可以使用MIT。
-＃ 
-＃版權所有（C）2019 KFERMercer <KFER.Mercer@gmail.com>
-＃ 
-＃<https://github.com/KFERMercer/OpenWrt-CI>
-＃
+#
+# This is free software, lisence use MIT.
+# 
+# Copyright (C) 2019 KFERMercer <KFER.Mercer@gmail.com>
+# 
+# <https://github.com/KFERMercer/OpenWrt-CI>
+#
 
-名稱：上游合併
+name: Merge-upstream
 
-上：
-  推：
-    分支機構： 
-      -大師
-  時間表：
-    -cron：30 19 * * *
+on:
+  push:
+    branches: 
+      - master
+  schedule:
+    - cron: 30 19 * * *
 
-職位：
-  合併：
+jobs:
+  merge:
 
-    運行：ubuntu-latest
+    runs-on: ubuntu-latest
 
-    腳步：
+    steps:
 
-    -名稱：結帳
-      用途：actions / checkout @ master
-      與：
-        參考：大師
-        提取深度：0
-        lfs：是
+    - name: Checkout
+      uses: actions/checkout@master
+      with:
+        ref: master
+        fetch-depth: 0
+        lfs: true
 
-    -名稱：設置git身份
-      運行：|
-        git config --global user.email“ 41898282 + github-actions [bot] @ users.noreply.github.com”
-        git config --global user.name“ github-actions [bot]”
+    - name: Set git identity
+      run : |
+        git config --global user.email "KFER.Mercer@gmail.com"
+        git config --global user.name "KFERMercer"
 
-    -名稱：加載上游提交
-      運行：git pull https://github.com/coolsnowwolf/lede.git --log --no-commit
+    - name: Load upstream commits
+      run: git pull https://github.com/coolsnowwolf/lede.git --no-edit --strategy-option ours
 
-    -名稱：套用提交變更
-      運行：
-        如果[-f ./.git/MERGE_MSG]; 然後
-        mkdir ./tmp && cp ./.git/MERGE_MSG ./tmp/message
-        sed -i“ 1c [bot]自動合併：合併所有上游的更改：” ./tmp/message
-        sed -i'/^\#.*/d'./tmp/message
-        git commit --file =“ ./ tmp / message”
-        其他
-        迴聲“沒有合併提交。”
-        科幻
-
-    -名稱：Push Commits
-      環境：
-        DOWNSTREAM_BRANCH：大師
-      運行：git push origin $ DOWNSTREAM_BRANCH
+    - name: Push Commits
+      env:
+        DOWNSTREAM_BRANCH: master
+      run: git push origin $DOWNSTREAM_BRANCH
